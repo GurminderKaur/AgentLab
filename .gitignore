@@ -1,0 +1,8 @@
+bin/
+obj/
+out/
+*.user
+.vs/
+run-data/
+__pycache__/
+practice-folder/
