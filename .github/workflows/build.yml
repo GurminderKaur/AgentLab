@@ -13,4 +13,13 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with: { dotnet-version: 8.0.x }
       - name: Build every step
-        run: for p in $(find . -name "*.csproj"); do echo "== $p"; dotnet build "$p" -c Release || exit 1; done
+        run: |
+          fail=0
+          for p in $(find . -name "*.csproj"); do
+            echo "== $p"
+            dotnet build "$p" -c Release 2>&1 | tee build.log || true
+            # surface compiler/restore errors as annotations (readable without the full log)
+            grep -E ": (error|warning) [A-Z]+[0-9]+" build.log | sort -u | head -20 | sed 's/^/::error::/'
+            grep -q "Build succeeded" build.log || fail=1
+          done
+          exit $fail
