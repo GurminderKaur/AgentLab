@@ -10,6 +10,7 @@ public sealed class Downloads
 
     public string Root { get; }
     public HashSet<string> Read { get; } = new(StringComparer.OrdinalIgnoreCase);
+    public bool Searched { get; private set; }
     public List<(string File, string Folder, string Reason)> Suggestions { get; } = new();
 
     public Downloads(string root) { Root = root; }
@@ -17,28 +18,51 @@ public sealed class Downloads
     private string? Safe(string name) =>
         name.Length > 0 && name == Path.GetFileName(name) && File.Exists(Path.Combine(Root, name)) ? Path.Combine(Root, name) : null;
 
-    /// <summary>Search INSIDE every file (and its name) with plain code, so the model doesn't have to read 50 files.</summary>
+    // Everyday words → how they appear in real documents. A search that doesn't speak the user's
+    // language returns noise, and a small model then gives up (that's what happened in my first run).
+    private static readonly Dictionary<string, string[]> Aliases = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["phone"] = ["phone", "mobile", "wireless", "cell", "cellular"],
+        ["bill"] = ["bill", "statement", "invoice", "amount due"],
+        ["receipt"] = ["receipt", "total", "subtotal"],
+        ["bank"] = ["bank", "chequing", "checking", "savings", "credit union"],
+        ["rent"] = ["rent", "lease", "tenancy"],
+        ["flight"] = ["flight", "booking", "boarding", "airline", "air"],
+        ["power"] = ["power", "electricity", "energy", "natural gas"],
+        ["january"] = ["january", "jan"], ["february"] = ["february", "feb"], ["march"] = ["march", "mar"],
+        ["april"] = ["april", "apr"], ["may"] = ["may"], ["june"] = ["june", "jun"], ["july"] = ["july", "jul"],
+        ["august"] = ["august", "aug"], ["september"] = ["september", "sep", "sept"], ["october"] = ["october", "oct"],
+        ["november"] = ["november", "nov"], ["december"] = ["december", "dec"],
+    };
+    private static readonly HashSet<string> Stop = new(StringComparer.OrdinalIgnoreCase) { "the", "and", "for", "find", "file", "files", "with", "from" };
+
+    /// <summary>Search INSIDE every file (and its name) with plain code, so the model doesn't have to read 50 files.
+    /// Each of the user's words counts once if it, or one of its aliases, appears as a whole word.</summary>
     public string Search(string query)
     {
         var words = query.ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                         .Where(w => w.Length > 2).Distinct().ToList();
+                         .Select(w => w.Trim('.', ',', '?', '!', '"', '\'')).Where(w => w.Length > 2 && !Stop.Contains(w)).Distinct().ToList();
         if (words.Count == 0) return "Give at least one word to search for.";
+        Searched = true;
+        var patterns = words.Select(w => new System.Text.RegularExpressions.Regex(
+            @"\b(" + string.Join("|", (Aliases.TryGetValue(w, out var a) ? a : [w]).Select(System.Text.RegularExpressions.Regex.Escape)) + @")\b",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase)).ToList();
         var hits = new List<(string Name, int Score, string Line)>();
         foreach (var path in Directory.GetFiles(Root))
         {
             var name = Path.GetFileName(path);
             var text = File.ReadAllText(path);
-            var hay = (name + "\n" + text).ToLowerInvariant();
-            int score = words.Count(w => hay.Contains(w));
+            var hay = name + "\n" + text;
+            int score = patterns.Count(p => p.IsMatch(hay));
             if (score == 0) continue;
-            // the first line that matches, so the model sees WHY it matched
-            var line = text.Split('\n').Select(l => l.Trim()).FirstOrDefault(l => words.Any(w => l.ToLowerInvariant().Contains(w))) ?? "";
-            hits.Add((name, score, line.Length > 90 ? line[..90] + "…" : line));
+            // up to 3 lines that match, so the model sees WHY it matched (company, date, amount)
+            var line = string.Join(" | ", text.Split('\n').Select(l => l.Trim()).Where(l => patterns.Any(p => p.IsMatch(l))).Take(3));
+            hits.Add((name, score, line.Length > 110 ? line[..110] + "…" : line));
         }
         if (hits.Count == 0) return $"No files mention: {string.Join(", ", words)}. Try other words (a company name, 'statement', 'due').";
-        return $"{hits.Count} file(s) match (best first, up to 8). Read a file before deciding about it.\n" +
+        return $"{hits.Count} file(s) match (best first, up to 8). Files that match more of your words are more likely. Read a file before deciding about it.\n" +
                string.Join("\n", hits.OrderByDescending(h => h.Score).ThenBy(h => h.Name).Take(8)
-                                     .Select(h => $"- {h.Name}  (matches {h.Score}/{words.Count} words): \"{h.Line}\""));
+                                     .Select(h => $"- {h.Name}  (matches {h.Score} of {words.Count}): \"{h.Line}\""));
     }
 
     public string ReadFile(string name)
@@ -109,9 +133,12 @@ public sealed class Downloads
         {
             MakePractice(root);
             var d = new Downloads(root);
-            var s = d.Search("phone bill");
-            Check("search finds both Chinook bills by content", s.Contains("document(3).txt") && s.Contains("document(7).txt"));
-            Check("search shows why a file matched", s.Contains("Your bill"));
+            var s = d.Search("phone bill September");
+            var first = s.Split('\n').First(l => l.StartsWith("- "));
+            Check("search: 'phone' finds 'Mobile', 'September' finds 'Sep' → September phone bill ranked first", first.Contains("document(3).txt") && first.Contains("3 of 3"));
+            Check("search: October phone bill and September power bill rank below it", s.Contains("document(7).txt  (matches 2 of 3)") && s.Contains("enmax_statement.txt  (matches 2 of 3)"));
+            Check("search shows why a file matched", first.Contains("Chinook") || first.Contains("Sep 14"));
+            Check("search: 'sep' doesn't match inside other words", !d.Search("sep").Contains("download ("));
             Check("search caps results at 8", s.Split('\n').Count(l => l.StartsWith("- ")) <= 8);
             Check("search with no hits gives a hint", d.Search("zebra").StartsWith("No files mention"));
             Check("read refuses paths", d.ReadFile("../secret.txt").StartsWith("Error"));

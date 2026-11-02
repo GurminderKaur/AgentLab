@@ -52,6 +52,15 @@ List<ChatMessage> messages =
 ];
 
 var response = await client.GetResponseAsync(messages, options);
+messages.AddRange(response.Messages);
+
+// GUARDRAIL: "nothing matches" is only allowed after actually reading some search results.
+if (d.Suggestions.Count == 0 && d.Read.Count == 0 && d.Searched)
+{
+    Console.WriteLine("  model gave up without reading any search results → pushed back");
+    messages.Add(new(ChatRole.User, "You haven't read any of the files your search found. Read the top 3 results (exact names), check company and dates, then decide."));
+    response = await client.GetResponseAsync(messages, options);
+}
 Console.WriteLine($"\nAssistant: {response.Text}\n");
 
 // ── Human in the loop: the only place anything moves ────────────────────────

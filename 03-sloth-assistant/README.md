@@ -18,6 +18,27 @@ Then the program shows the suggestions and asks **you**. Only `y` moves files, a
 
 The trap in the test folder: `document(3).txt` (Chinook Mobile, Sep 14) and `document(7).txt` (Chinook Mobile, Oct 14) look the same until you read the statement date, and `enmax_statement.txt` is a September bill but for power, not a phone.
 
+## First real run: what went wrong, and the fixes
+
+With `qwen3:4b`, the first version **gave up after one search**:
+
+```
+🔎 search_files("phone bill September")
+Assistant: The search results show no files containing both "phone bill" and "September"…
+I cannot suggest moving any file.
+```
+
+Two causes, and only one was the model's fault:
+
+1. **My search didn't speak the user's language.** The bill says "Chinook **Mobile**… Statement date: **Sep** 14", not "phone" or "September". So every bill matched just 1 of 3 words, tied with ten saved web pages about "hikes near Canmore this September". The results were mostly noise.
+2. **The model gave up without reading anything**, the same laziness as in Step 1.1.
+
+Fixes:
+- **Search with aliases and whole words:** `phone` also matches mobile/wireless/cell, `bill` matches statement/invoice/amount due, `September` matches Sep/Sept (but not "separately"). Results are ranked by how many of the user's ideas they match, with up to 3 matching lines shown. Now the September phone bill ranks first at 3 of 3, the October phone bill and the September power bill are next at 2 of 3, and the hiking pages sink to the bottom.
+- **A guardrail:** "nothing matches" is only accepted after reading some search results; otherwise the program pushes back once.
+
+**Lesson:** for an agent, tool design matters as much as the model. A tool that returns noise makes a small model look dumber than it is.
+
 ## Run it
 
 Needs the **.NET 10 SDK** and Ollama with a tool-capable model.
