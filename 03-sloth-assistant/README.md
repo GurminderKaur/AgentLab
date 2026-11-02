@@ -39,6 +39,32 @@ Fixes:
 
 **Lesson:** for an agent, tool design matters as much as the model. A tool that returns noise makes a small model look dumber than it is.
 
+## Result after the fixes (real run, my laptop, `qwen3:4b`, CPU only)
+
+```
+You: Find my September phone bill and file it.
+
+  🔎 search_files("phone bill September")
+  📄 read_file("document(3).txt")
+  📦 suggest_move("document(3).txt" → "Bills & Receipts")
+
+Assistant: I found your September phone bill in `document(3).txt` (Chinook Mobile, statement date Sep 14, 2026)
+and suggested moving it to Bills & Receipts. This matches your request exactly—no guessing was needed since
+the file name and content clearly indicate a September phone bill.
+
+(took 185 s on this computer)
+
+Suggested moves:
+  document(3).txt → Bills & Receipts   (Chinook Mobile phone bill, statement date Sep 14, 2026)
+Move these files? (y/n) y
+  moved: document(3).txt → Sorted/Bills & Receipts/document(3).txt
+```
+
+- ✅ **Right file**, out of 40, with the October phone bill and the September power bill as traps. One search, one read, one suggestion.
+- ✅ It **read the file before suggesting** (the tool would have refused otherwise), and **I approved** the move.
+- ⚠️ Its explanation isn't quite true: the *file name* (`document(3).txt`) says nothing; the *content* did. Small models can do the right thing and still describe their reasoning inaccurately, so I trust the tool log, not the explanation.
+- ⏱ **185 s** on a laptop CPU. qwen3 "thinks" before answering, which is why the default 100 s timeout in OllamaSharp failed on my previous attempt.
+
 ## Run it
 
 Needs the **.NET 10 SDK** and Ollama with a tool-capable model.
