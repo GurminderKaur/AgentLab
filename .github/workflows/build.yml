@@ -11,7 +11,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
-        with: { dotnet-version: 8.0.x }
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
       - name: Build every step
         run: |
           fail=0
@@ -22,4 +25,5 @@ jobs:
             grep -E ": (error|warning) [A-Z]+[0-9]+" build.log | sort -u | head -20 | sed 's/^/::error::/'
             grep -q "Build succeeded" build.log || fail=1
           done
+          dotnet run --project 03-sloth-assistant -c Release --no-build -- selftest || fail=1
           exit $fail

@@ -11,7 +11,7 @@ In October 2026 I built four local-first apps with open models ([portfolio](http
 | 1 | **Agents with tools** | | |
 | 1.1 | An agent loop by hand, with guardrails | [`01-mini-agent`](01-mini-agent) | ✅ Works with `qwen3:4b` and `qwen2.5:3b` |
 | 1.2 | The same agent with an open-source .NET AI framework (Microsoft.Extensions.AI) | [`02-framework-agent`](02-framework-agent) | ✅ Works with `qwen3:4b`; guardrail still needed |
-| 1.3 | A real task: an assistant for my Sloth Sort app | | Next |
+| 1.3 | A real task: an assistant for my Sloth Sort app (search, read, suggest; you approve) | [`03-sloth-assistant`](03-sloth-assistant) | Builds ✅, testing on my laptop |
 | 2 | **Skills:** reusable instructions for a coding agent (OpenCode + a local model) | | |
 | 3 | **Choosing a model:** 3 small models on the same test: accuracy, speed, licence | | |
 | 4 | **Fine-tuning** a 1–3B model on fictional receipts (free Colab GPU), measured against the baseline | | |
