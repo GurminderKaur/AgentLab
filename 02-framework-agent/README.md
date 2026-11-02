@@ -21,3 +21,23 @@ ollama pull qwen3:4b
 cd 02-framework-agent
 dotnet run -- qwen3:4b "Which file is my phone bill, and how much is due?"
 ```
+
+## Result (real run, my laptop, `qwen3:4b`)
+
+```
+You: Which file is my phone bill, and how much is due?
+
+  model asks for list_files()
+  model asks for read_file("notes.txt")
+  model asks for read_file("document(7).txt")
+  model tried to answer before reading recipe.txt → pushed back
+  model asks for read_file("recipe.txt")
+
+Agent: The phone bill is in `document(7).txt` with an amount due of **$85.12**.
+```
+
+- The framework ran the whole tool loop: four tool calls inside two `GetResponseAsync` calls, and no loop code of mine.
+- **The guardrail still mattered.** The model found the bill but tried to answer before reading `recipe.txt`, and my check pushed back. The framework has no idea what "read everything first" means for my task.
+- Compared with Step 1.1, the model read more files on its own this time (2 of 3 before answering, vs 1 of 3), but it still wasn't thorough without the push-back.
+
+**Build note:** on the .NET 8 SDK you may see warning `CS9057` (OllamaSharp's source generator was built for a newer C# compiler). It's harmless here; installing a newer .NET SDK (9 or 10, still targeting `net8.0`) makes it go away.
