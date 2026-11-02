@@ -31,7 +31,8 @@ string suggest_move([Description("Exact file name")] string name,
                     [Description("Short reason, e.g. 'Chinook Mobile bill, statement date Sep 14, 2026'")] string reason)
 { Console.WriteLine($"  📦 suggest_move(\"{name}\" → \"{folder}\")"); return d.Suggest(name, folder, reason); }
 
-IChatClient client = new ChatClientBuilder(new OllamaApiClient(new Uri("http://localhost:11434"), model))
+// Small "thinking" models on a laptop CPU can take minutes per turn; OllamaSharp's default wait is only 100 s.
+IChatClient client = new ChatClientBuilder(new OllamaApiClient(new HttpClient { BaseAddress = new Uri("http://localhost:11434"), Timeout = TimeSpan.FromMinutes(10) }, model))
     .UseFunctionInvocation(configure: f => f.MaximumIterationsPerRequest = 10)
     .Build();
 
@@ -51,7 +52,14 @@ List<ChatMessage> messages =
     new(ChatRole.User, request),
 ];
 
-var response = await client.GetResponseAsync(messages, options);
+var started = DateTime.Now;
+ChatResponse response;
+try { response = await client.GetResponseAsync(messages, options); }
+catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+{
+    Console.WriteLine($"\nCouldn't get an answer from Ollama ({ex.GetType().Name}). Is the Ollama app running, and is '{model}' pulled?");
+    return 1;
+}
 messages.AddRange(response.Messages);
 
 // GUARDRAIL: "nothing matches" is only allowed after actually reading some search results.
@@ -61,7 +69,7 @@ if (d.Suggestions.Count == 0 && d.Read.Count == 0 && d.Searched)
     messages.Add(new(ChatRole.User, "You haven't read any of the files your search found. Read the top 3 results (exact names), check company and dates, then decide."));
     response = await client.GetResponseAsync(messages, options);
 }
-Console.WriteLine($"\nAssistant: {response.Text}\n");
+Console.WriteLine($"\nAssistant: {response.Text}\n\n(took {(DateTime.Now - started).TotalSeconds:F0} s on this computer)\n");
 
 // ── Human in the loop: the only place anything moves ────────────────────────
 if (d.Suggestions.Count == 0) { Console.WriteLine("No moves suggested."); return 0; }

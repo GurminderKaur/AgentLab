@@ -41,7 +41,8 @@ string ReadFile([Description("File name, e.g. notes.txt")] string name)
 }
 
 // ── The framework: an Ollama chat client, wrapped so it runs tool calls automatically ──
-IChatClient client = new ChatClientBuilder(new OllamaApiClient(new Uri("http://localhost:11434"), model))
+// Small "thinking" models on a laptop CPU can take minutes per turn; OllamaSharp's default wait is only 100 s.
+IChatClient client = new ChatClientBuilder(new OllamaApiClient(new HttpClient { BaseAddress = new Uri("http://localhost:11434"), Timeout = TimeSpan.FromMinutes(10) }, model))
     .UseFunctionInvocation(configure: f => f.MaximumIterationsPerRequest = 8)   // same hard limit as before
     .Build();
 
