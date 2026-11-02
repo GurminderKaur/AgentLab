@@ -4,7 +4,7 @@
 
 **My hands-on notebook for learning AI agents and fine-tuning with small open-weight models, in C#/.NET, on a laptop.**
 
-In October 2026 I built four local-first apps with open models ([portfolio](https://gurminderkaur.github.io)). They each call a model for one job. This repo is about the next level: models that use tools to finish multi-step tasks, reusable instructions for agents, choosing models, and fine-tuning. Everything runs locally through [Ollama](https://ollama.com), with no cloud and no credit card.
+In October 2026 I built four local-first apps with open models ([portfolio](https://gurminderkaur.github.io)). They each call a model for one job. This repo is about the next level: models that use tools to finish multi-step tasks, reusable instructions for agents, choosing models, and fine-tuning. Everything runs locally through [Ollama](https://ollama.com), with no cloud and no credit card. All projects target **.NET 10** (LTS, supported until November 2028).
 
 | Step | What I'm learning | Folder | Status |
 |---|---|---|---|

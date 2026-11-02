@@ -48,7 +48,7 @@ After the push-back, both models asked for **several tools in one step** (parall
 
 ## Run it
 
-Needs the [.NET 8 SDK](https://dotnet.microsoft.com/download) and [Ollama](https://ollama.com).
+Needs the [.NET 10 SDK](https://dotnet.microsoft.com/download) and [Ollama](https://ollama.com).
 
 ```powershell
 ollama pull qwen3:4b          # or qwen2.5:3b; the model must support tool calling (Gemma 3 doesn't in Ollama)

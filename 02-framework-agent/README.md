@@ -40,4 +40,4 @@ Agent: The phone bill is in `document(7).txt` with an amount due of **$85.12**.
 - **The guardrail still mattered.** The model found the bill but tried to answer before reading `recipe.txt`, and my check pushed back. The framework has no idea what "read everything first" means for my task.
 - Compared with Step 1.1, the model read more files on its own this time (2 of 3 before answering, vs 1 of 3), but it still wasn't thorough without the push-back.
 
-**Build note:** on the .NET 8 SDK you may see warning `CS9057` (OllamaSharp's source generator was built for a newer C# compiler). It's harmless here; installing a newer .NET SDK (9 or 10, still targeting `net8.0`) makes it go away.
+**Build note:** this first run was on the .NET 8 SDK and showed warning `CS9057` (OllamaSharp's source generator was built for a newer C# compiler). The project now targets **.NET 10**, whose compiler is new enough, so the warning is gone. (.NET 8 and 9 stop getting security fixes on November 10, 2026.)
