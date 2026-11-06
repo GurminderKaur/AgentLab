@@ -1,24 +1,24 @@
-# Step 2: Skills (reusable instructions for a coding agent)
+# Step 2: skills: reusable instructions for a coding agent
 
-A **skill** is a folder with a `SKILL.md`: a name, a one-line description, and instructions. A coding agent sees only the name and description, and loads the full instructions when a task matches. OpenCode reads project skills from `.agents/skills/<name>/SKILL.md` (also `.opencode/skills/` and `.claude/skills/`).
+## Two kinds of instructions
 
-My skill: [`.agents/skills/local-first-dotnet-ai/SKILL.md`](../.agents/skills/local-first-dotnet-ai/SKILL.md). Every rule in it comes from something that actually went wrong in October or in Step 1:
+| | [`AGENTS.md`](../AGENTS.md) | A skill: [`.agents/skills/add-selftest-check/SKILL.md`](../.agents/skills/add-selftest-check/SKILL.md) |
+|---|---|---|
+| When it's read | **Every time** the agent works in this repo | **Only when the task matches**: the agent sees just the name and one-line description, and loads the rest on demand |
+| What goes in it | House rules: .NET 10, stay local, fictional data, never overwrite, run the self-test before finishing | A step-by-step procedure for one kind of job: adding a self-test check in my style |
+| Why it matters for a small model | Short, always-on rules | Keeps the model's limited memory free until the procedure is actually needed |
 
-| Rule in the skill | Where I learned it |
-|---|---|
-| Long prose as plain text, not JSON | Marigold: forced JSON made Gemma 3 4B run past its length limit, twice |
-| Timeouts of at least 10 minutes | Step 1.3: OllamaSharp's 100 s default timed out while qwen3 was thinking |
-| "Read before you answer" guardrails | Step 1.1: two models answered about files they never opened |
-| Tools do the heavy work and say why something matched | Step 1.3: a noisy search made the model give up |
-| The model only suggests; a person approves; never overwrite | Sloth Sort, Step 1.3 |
-| Fictional sample data only | All projects |
+OpenCode reads skills from `.opencode/skills/`, `.claude/skills/` or `.agents/skills/` ([docs](https://opencode.ai/docs/skills.md)); I use `.agents/skills/` because other coding agents read that location too.
 
 ## The experiment (Part 2.3)
 
-Same task, same local model, in OpenCode: **without** the skill, then **with** it.
+The same small task, run twice with OpenCode and a local model on my laptop:
 
-> Task: *"In 03-sloth-assistant, add a `file_info` tool that returns a file's size and last-modified date."*
+> In `03-sloth-assistant`, make `search_files` ignore upper/lower case in file names too, and add a self-test check for it.
 
-What the skill should change: logic goes in `Tools.cs` (testable without a model), the tool refuses paths, a self-test check is added, no new packages, and the agent runs the self-test before saying it's done.
+1. **Without** the instructions (AGENTS.md and the skill temporarily renamed).
+2. **With** them.
 
-Results: *to be filled in from my laptop runs.*
+What I'll compare: did it build, did it add a check in the right style, did it run the self-test, did it add a NuGet package or touch other folders, and how long it took.
+
+Results: *not run yet.*
