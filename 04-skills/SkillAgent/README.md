@@ -46,6 +46,24 @@ dotnet run -- qwen3:4b "File my September power bill."
 
 Fixes: every tool now has a plain name (`AIFunctionFactory.Create(suggest_move, "suggest_move")`, also fixed in Step 1.3), and a new guardrail pushes back once if the model read files but recorded no suggestion.
 
-## After the fixes
+## After the fixes (same laptop, same model)
 
-Results: *not run yet.*
+| | Without skills | With skills |
+|---|---|---|
+| Loaded the skill | (not available) | ✅ `filing-bills`, first |
+| Right file (`enmax_statement.txt`) | ✅ | ✅ |
+| **Folder** | Bills & Receipts (the obvious guess) | **Home & Car** ✅ (my rule) |
+| Called `suggest_move` | ✅ only after the guardrail pushed back | ✅ on its own |
+| Reason it recorded | "Confirmed September power bill from Prairie Power Co." | "Prairie Power Co., power bill, statement Sep 20, 2026": **exactly the format in my recipe** |
+| Time | 274 s | 227 s |
+
+### What the skill did
+1. **Changed the decision** to follow a personal rule the model couldn't guess.
+2. **Changed the output format** to match my template word for word.
+3. **Made it more reliable:** with a clear recipe it called the tool without a push-back, which also made this run *faster* despite loading the recipe.
+
+### What I learned about skills
+- A skill is just Markdown plus a name and a one-line description. The **description decides whether it gets loaded**, so it has to say *when* to use it.
+- Loading on demand keeps the small model's context free: the model saw two one-line descriptions, not two recipes.
+- Strict tools need valid YAML headers: a `:` inside a description must be quoted (GitHub caught my mistake).
+- Name your tools explicitly: unnamed C# local functions got compiler names like `_Main_g_suggest_move_3`, and the model fumbled them.
