@@ -31,4 +31,18 @@ The same real bug, fixed twice by OpenCode with a local model (`qwen3:4b`, 32k c
 | Didn't weaken or delete existing checks | | |
 | Time taken | | |
 
-Results: *not run yet.*
+## Run 1 result: without instructions (my laptop, 16 GB RAM, CPU only)
+
+**It didn't produce any code.**
+
+- `ollama launch opencode` loaded `qwen3:4b` with a **64k context** (OpenCode's own instructions need that much), using **12 GB of RAM** (`ollama ps`). My 32k app setting was overridden.
+- It "thought" for **24 min 28 s**, then announced `Edit search_files.js`, a **JavaScript** file in a **C#** project. It had guessed from the tool's name instead of looking at the code (the search lives in `Tools.cs`).
+- It thought for another **8 min**, then searched for that `.js` file (which doesn't exist).
+- The laptop went to sleep; after waking it was still thinking. I stopped it.
+- `git status` afterwards: **no files changed** except my renaming of the instruction files.
+
+**What this shows:**
+1. A full coding agent is much heavier than my own agents: OpenCode needs ~64k context (about 12 GB with this model), while my Sloth Sort assistant ran in about 4 GB.
+2. **Without house rules, a small model guesses the project's basics wrong**, even the language. "C# on .NET 10" is the first line of `AGENTS.md` for exactly this reason.
+
+Run 2 (with instructions) on this laptop would face the same memory and speed limits, so I'm finishing Step 2 differently (below).
