@@ -39,7 +39,7 @@ IChatClient client = new ChatClientBuilder(new OllamaApiClient(new HttpClient { 
 var options = new ChatOptions
 {
     Temperature = 0,
-    Tools = [AIFunctionFactory.Create(search_files), AIFunctionFactory.Create(read_file), AIFunctionFactory.Create(suggest_move)],
+    Tools = [AIFunctionFactory.Create(search_files, "search_files"), AIFunctionFactory.Create(read_file, "read_file"), AIFunctionFactory.Create(suggest_move, "suggest_move")],
 };
 List<ChatMessage> messages =
 [

@@ -27,11 +27,25 @@ dotnet run -- qwen3:4b "File my September power bill." --no-skills
 dotnet run -- qwen3:4b "File my September power bill."
 ```
 
+## First real runs (my laptop, `qwen3:4b`, CPU only)
+
 | | Without skills | With skills |
 |---|---|---|
-| Loaded the skill | (not available) | |
-| Right file (`enmax_statement.txt`) | | |
-| Folder | | |
-| Time | | |
+| Loaded the skill | (not available) | ✅ `filing-bills`, **before** searching |
+| Right file (`enmax_statement.txt`) | ✅ | ✅ |
+| Folder it chose (in its answer) | **Bills & Receipts**: the obvious guess | **Home & Car** ✅ my rule, and it quoted it ("utility bills go into Home & Car") |
+| Time | 174 s | 260 s (loading the recipe adds a turn) |
+| Recorded the suggestion with `suggest_move` | ❌ | ❌ |
 
-Results: *not run yet.* Nothing is moved in this step: it only reports what it would suggest.
+**The skill changed the decision exactly as intended**: same model, same files, and only the run with the recipe followed my personal rule. The cost was about 90 extra seconds.
+
+**But neither run actually called `suggest_move`**, so the report said "No moves suggested":
+
+- Without skills, the model wrote the call **as text** in its answer, under the name `_Main_g_suggest_move_3`. That was my bug: I hadn't given the tools explicit names, so the framework used C#'s compiled names for local functions. Odd names make small models fumble the call format.
+- With skills, it **described** its choice ("I suggest moving…") without calling the tool.
+
+Fixes: every tool now has a plain name (`AIFunctionFactory.Create(suggest_move, "suggest_move")`, also fixed in Step 1.3), and a new guardrail pushes back once if the model read files but recorded no suggestion.
+
+## After the fixes
+
+Results: *not run yet.*

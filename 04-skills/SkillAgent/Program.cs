@@ -48,7 +48,7 @@ IChatClient client = new ChatClientBuilder(new OllamaApiClient(new HttpClient { 
     .UseFunctionInvocation(configure: f => f.MaximumIterationsPerRequest = 12)
     .Build();
 
-var tools = new List<AITool> { AIFunctionFactory.Create(search_files), AIFunctionFactory.Create(read_file), AIFunctionFactory.Create(suggest_move) };
+var tools = new List<AITool> { AIFunctionFactory.Create(search_files, "search_files"), AIFunctionFactory.Create(read_file, "read_file"), AIFunctionFactory.Create(suggest_move, "suggest_move") };
 var system = """
     You help tidy the user's Downloads folder. File names are often meaningless (document(3).txt), so:
     search_files, read_file the promising results, check the details match the request, then suggest_move.
@@ -56,7 +56,7 @@ var system = """
     """;
 if (useSkills)
 {
-    tools.Add(AIFunctionFactory.Create(load_skill));
+    tools.Add(AIFunctionFactory.Create(load_skill, "load_skill"));
     system += $"""
 
         The user has written SKILLS: their own rules for certain jobs. Before doing a job that matches a skill below,
@@ -76,6 +76,16 @@ catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
 {
     Console.WriteLine($"\nCouldn't get an answer from Ollama ({ex.GetType().Name}). Is Ollama running, and is '{model}' pulled?");
     return 1;
+}
+messages.AddRange(response.Messages);
+
+// GUARDRAIL: "I suggest moving X" in words isn't a suggestion; only a suggest_move call records one.
+// (In my first runs the model described its choice, or wrote the call as text, without calling the tool.)
+if (d.Suggestions.Count == 0 && d.Read.Count > 0)
+{
+    Console.WriteLine("  model described a choice without calling suggest_move → pushed back");
+    messages.Add(new(ChatRole.User, "If a file matches, call the suggest_move tool now to record it (don't write the call as text). If nothing matches, say so."));
+    response = await client.GetResponseAsync(messages, options);
 }
 Console.WriteLine($"\nAssistant: {response.Text}\n");
 
