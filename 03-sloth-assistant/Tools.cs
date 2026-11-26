@@ -13,6 +13,9 @@ public sealed class Downloads
     public bool Searched { get; private set; }
     public List<(string File, string Folder, string Reason)> Suggestions { get; } = new();
 
+    /// <summary>How a file's text is read. Plain text by default; Step 2c plugs in PDF, Word and photo readers.</summary>
+    public Func<string, string> ReadText { get; init; } = File.ReadAllText;
+
     public Downloads(string root) { Root = root; }
 
     private string? Safe(string name) =>
@@ -51,7 +54,7 @@ public sealed class Downloads
         foreach (var path in Directory.GetFiles(Root))
         {
             var name = Path.GetFileName(path);
-            var text = File.ReadAllText(path);
+            var text = ReadText(path);
             var hay = name + "\n" + text;
             int score = patterns.Count(p => p.IsMatch(hay));
             if (score == 0) continue;
@@ -69,7 +72,7 @@ public sealed class Downloads
     {
         if (Safe(name) is not { } path) return $"Error: no file named \"{name}\". Use the exact name from search results.";
         Read.Add(name);
-        var text = File.ReadAllText(path);
+        var text = ReadText(path);
         return text.Length > 1500 ? text[..1500] + "…" : text;
     }
 

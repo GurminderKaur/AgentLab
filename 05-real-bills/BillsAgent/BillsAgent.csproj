@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Reuse earlier steps instead of copying: the tools (1.3) and the skill loader + filing-bills skill (2b) -->
+    <Compile Include="../../03-sloth-assistant/Tools.cs" Link="Tools.cs" />
+    <Compile Include="../../04-skills/SkillAgent/Skills.cs" Link="Skills.cs" />
+    <None Include="../../04-skills/SkillAgent/skills/filing-bills/SKILL.md" Link="skills/filing-bills/SKILL.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="skills/**/SKILL.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="samples/coffee-receipt-photo.jpg" CopyToOutputDirectory="PreserveNewest" />
+    <PackageReference Include="Microsoft.Extensions.AI" Version="10.*" />
+    <PackageReference Include="OllamaSharp" Version="5.5.*" />
+  </ItemGroup>
+</Project>
