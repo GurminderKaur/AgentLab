@@ -12,13 +12,23 @@ OpenCode reads skills from `.opencode/skills/`, `.claude/skills/` or `.agents/sk
 
 ## The experiment (Part 2.3)
 
-The same small task, run twice with OpenCode and a local model on my laptop:
+The same real bug, fixed twice by OpenCode with a local model (`qwen3:4b`, 32k context) on my laptop:
 
-> In `03-sloth-assistant`, make `search_files` ignore upper/lower case in file names too, and add a self-test check for it.
+> In 03-sloth-assistant, search_files("resume") finds nothing, although resume_FINAL.txt is in the practice folder: the underscore stops the whole-word match. Fix it so words in file names separated by _ or - are found, add a self-test check for it, and make sure the self-test passes.
 
-1. **Without** the instructions (AGENTS.md and the skill temporarily renamed).
+(Confirmed before the experiment: `Search("resume")` returns "No files mention: resume", and all 12 existing checks pass.)
+
+1. **Without** instructions: `AGENTS.md` and `.agents/` temporarily renamed.
 2. **With** them.
 
-What I'll compare: did it build, did it add a check in the right style, did it run the self-test, did it add a NuGet package or touch other folders, and how long it took.
+| What I compare | Without | With |
+|---|---|---|
+| Fixed the bug (`resume` finds `resume_FINAL.txt`) | | |
+| Added a self-test check in the house style (`Check("plain words…", …)`) | | |
+| Ran the self-test before finishing | | |
+| All checks pass afterwards | | |
+| Stayed inside `03-sloth-assistant`, no new NuGet package | | |
+| Didn't weaken or delete existing checks | | |
+| Time taken | | |
 
 Results: *not run yet.*
