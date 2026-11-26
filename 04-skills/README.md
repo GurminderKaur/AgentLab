@@ -46,3 +46,7 @@ The same real bug, fixed twice by OpenCode with a local model (`qwen3:4b`, 32k c
 2. **Without house rules, a small model guesses the project's basics wrong**, even the language. "C# on .NET 10" is the first line of `AGENTS.md` for exactly this reason.
 
 Run 2 (with instructions) on this laptop would face the same memory and speed limits, so I'm finishing Step 2 differently (below).
+
+## Step 2b: skills inside my own agent
+
+See [`SkillAgent`](SkillAgent): the Sloth Sort assistant with a `load_skill` tool and two skills, tested with and without skills on my laptop.

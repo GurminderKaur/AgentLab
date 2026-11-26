@@ -24,4 +24,5 @@ jobs:
             grep -q "Build succeeded" build.log || fail=1
           done
           dotnet run --project 03-sloth-assistant -c Release --no-build -- selftest || fail=1
+          dotnet run --project 04-skills/SkillAgent -c Release --no-build -- selftest || fail=1
           exit $fail
