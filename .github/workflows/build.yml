@@ -26,3 +26,18 @@ jobs:
           dotnet run --project 03-sloth-assistant -c Release --no-build -- selftest || fail=1
           dotnet run --project 04-skills/SkillAgent -c Release --no-build -- selftest || fail=1
           exit $fail
+      - name: Every SKILL.md header is valid YAML (strict, like OpenCode and GitHub)
+        run: |
+          python3 - <<'EOF'
+          import glob, sys, yaml
+          bad = 0
+          for f in sorted(set(glob.glob("**/SKILL.md", recursive=True) + glob.glob(".agents/**/SKILL.md", recursive=True))):
+              try:
+                  meta = yaml.safe_load(open(f, encoding="utf-8").read().split("---")[1])
+                  assert meta.get("name") and meta.get("description"), "name and description are required"
+                  print("ok  ", f)
+              except Exception as e:
+                  bad += 1
+                  print(f"::error file={f}::Invalid SKILL.md header: {str(e).splitlines()[0]}")
+          sys.exit(1 if bad else 0)
+          EOF

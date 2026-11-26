@@ -20,8 +20,8 @@ public static class Skills
             if (lines.Length < 3 || lines[0].Trim() != "---") continue;
             int end = Array.FindIndex(lines, 1, l => l.Trim() == "---");
             if (end < 0) continue;
-            string Field(string key) => lines[1..end].Select(l => l.Trim())
-                .Where(l => l.StartsWith(key + ":")).Select(l => l[(key.Length + 1)..].Trim()).FirstOrDefault() ?? "";
+            string Field(string key) => Unquote(lines[1..end].Select(l => l.Trim())
+                .Where(l => l.StartsWith(key + ":")).Select(l => l[(key.Length + 1)..].Trim()).FirstOrDefault() ?? "");
             var name = Field("name");
             // Same rule as OpenCode: the name must match its folder, so the index can't lie about what loads.
             if (name.Length == 0 || name != Path.GetFileName(dir)) continue;
@@ -29,6 +29,10 @@ public static class Skills
         }
         return list;
     }
+
+    // Descriptions are written in quotes ("…") so strict YAML readers (OpenCode, GitHub) accept a ':' inside them.
+    private static string Unquote(string v) =>
+        v.Length >= 2 && v[0] == '"' && v[^1] == '"' ? v[1..^1].Replace("\\\"", "\"") : v;
 
     /// <summary>The short list that goes into the system prompt: names and descriptions only.</summary>
     public static string Index(List<Skill> skills) =>
@@ -47,6 +51,8 @@ public static class Skills
         Check("skills: both skills found", all.Select(s => s.Name).SequenceEqual(new[] { "filing-bills", "filing-travel" }));
         Check("skills: index has names and descriptions only (no recipe text)",
             Index(all).Contains("filing-bills:") && !Index(all).Contains("Home & Car"));
+        Check("skills: quoted descriptions are read without the quotes", all.All(x => x.Description.Length > 0 && !x.Description.StartsWith('"')));
+        Check("skills: a description may contain ':' (\"How I file trips: …\")", all.Any(x => x.Description.Contains("trips: flight")));
         Check("skills: loading returns the full recipe", Load(all, "filing-bills").Contains("Home & Car"));
         Check("skills: unknown skill gives a helpful error", Load(all, "taxes").StartsWith("Error") && Load(all, "taxes").Contains("filing-bills"));
         var tmp = Path.Combine(Path.GetTempPath(), "skill-test-" + Guid.NewGuid().ToString("N")[..6]);

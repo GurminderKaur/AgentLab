@@ -1,6 +1,6 @@
 ---
 name: filing-travel
-description: How I file trips: flight bookings, boarding passes, hotel and car-rental confirmations. Use when filing anything travel-related.
+description: "How I file trips: flight bookings, boarding passes, hotel and car-rental confirmations. Use when filing anything travel-related."
 ---
 
 # Filing travel

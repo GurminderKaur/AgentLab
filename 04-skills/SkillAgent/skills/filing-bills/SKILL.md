@@ -1,6 +1,6 @@
 ---
 name: filing-bills
-description: How I file bills and statements (phone, power, gas, water, rent, credit card, bank). Which folder each kind goes to and what to check first. Use whenever filing a bill, invoice or statement.
+description: "How I file bills and statements (phone, power, gas, water, rent, credit card, bank). Which folder each kind goes to and what to check first. Use whenever filing a bill, invoice or statement."
 ---
 
 # Filing bills: my rules
