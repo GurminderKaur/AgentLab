@@ -27,9 +27,37 @@ dotnet run -- qwen3:4b "File my September phone bill."
 
 The first run looks at the photo with Gemma (about a minute on a laptop CPU); later runs reuse what it saw.
 
-## Results
+## Results (my laptop, 16 GB RAM, CPU only)
 
-*Not run yet.*
+**"File my coffee receipt from October."** The only match is a photo, `IMG_2207.jpg`.
+
+```
+Practice Downloads: 39 files (PDF, Word, photo, text) · skills: filing-bills, filing-receipts
+  🖼  looking at IMG_2207.jpg… 38 s
+     Chinook Coffee House
+     Receipt
+     Oct 6, 2026
+     $16.96
+
+You: File my coffee receipt from October.
+
+  📚 load_skill("filing-receipts")
+  🔎 search_files("coffee October")
+  📄 read_file("IMG_2207.jpg")
+  📦 suggest_move("IMG_2207.jpg" → "Bills & Receipts")
+
+── Result ───────────────────────────────
+Skills loaded: filing-receipts · agent took 299 s
+Suggested: IMG_2207.jpg → Bills & Receipts   (Chinook Coffee House, receipt, Oct 6, 2026, $16.96)
+```
+
+- ✅ **Gemma 3 read the photo correctly**: store, kind of document, date and total all match the receipt, with nothing invented. 38 s, once (later runs reuse `photo-notes.json`).
+- ✅ The agent loaded the **right** skill (`filing-receipts`, not `filing-bills`).
+- ✅ It found the photo by **what's in it** ("coffee October"), not by its meaningless name.
+- ✅ Read before suggesting; right folder; reason in my skill's exact format. No push-back needed.
+- ⏱ 38 s to look + 299 s for the agent, on a laptop CPU.
+
+**Two models, each doing one job:** Gemma 3 (vision, can't use tools) turned the photo into four lines of text; Qwen3 (tools, can't see) worked only from that text.
 
 ## Not covered yet: scanned PDFs
 
