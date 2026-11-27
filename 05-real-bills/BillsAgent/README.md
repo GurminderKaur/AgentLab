@@ -57,6 +57,22 @@ Suggested: IMG_2207.jpg → Bills & Receipts   (Chinook Coffee House, receipt, O
 - ✅ Read before suggesting; right folder; reason in my skill's exact format. No push-back needed.
 - ⏱ 38 s to look + 299 s for the agent, on a laptop CPU.
 
+**"File my September phone bill."** The answer is a PDF, `document(3).pdf`.
+
+```
+  📚 load_skill("filing-bills")
+  🔎 search_files("phone bill September")
+  📦 suggest_move("document(3).pdf" → "Bills & Receipts")     ← refused: not read yet
+  📄 read_file("document(3).pdf")
+  📦 suggest_move("document(3).pdf" → "Bills & Receipts")     ← accepted
+Suggested: document(3).pdf → Bills & Receipts   (Chinook Mobile, phone bill, statement Sep 14, 2026)
+agent took 376 s
+```
+
+- ✅ The PDF was read as text, with no AI involved in the reading.
+- ✅ No second look at the photo: the description came from `photo-notes.json`.
+- ✅ **The tool guardrail from Step 1.3 caught a real mistake:** the model tried to suggest before reading, `suggest_move` refused ("read it first"), and the model then read the PDF, checked the date and suggested again.
+
 **Two models, each doing one job:** Gemma 3 (vision, can't use tools) turned the photo into four lines of text; Qwen3 (tools, can't see) worked only from that text.
 
 ## Not covered yet: scanned PDFs
