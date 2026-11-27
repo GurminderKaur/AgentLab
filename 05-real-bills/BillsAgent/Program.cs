@@ -104,11 +104,19 @@ async Task<RunResult> RunAgent(string model, string request, string taskId = "")
         var response = await client.GetResponseAsync(messages, options);
         messages.AddRange(response.Messages);
         // GUARDRAIL (Step 2b): describing a choice in words isn't a suggestion; only suggest_move records one.
+        // GUARDRAIL (Step 3): a model that answers without reading anything hasn't checked anything (llama3.2 did this).
         if (d.Suggestions.Count == 0 && d.Read.Count > 0)
         {
             result.Pushbacks++;
             Console.WriteLine("  model described a choice without calling suggest_move → pushed back");
             messages.Add(new(ChatRole.User, "If a file matches, call the suggest_move tool now to record it (don't write the call as text). If nothing matches, say so."));
+            response = await client.GetResponseAsync(messages, options);
+        }
+        else if (d.Suggestions.Count == 0 && d.Read.Count == 0)
+        {
+            result.Pushbacks++;
+            Console.WriteLine("  model answered without reading any file → pushed back");
+            messages.Add(new(ChatRole.User, "You haven't read any file yet. Use search_files, then read_file on the best results, and record a match with the suggest_move tool."));
             response = await client.GetResponseAsync(messages, options);
         }
         Console.WriteLine($"\nAssistant: {response.Text.Trim()}\n");

@@ -42,6 +42,43 @@ dotnet run -- bench qwen3:4b gemma4:e4b granite4:3b llama3.2:3b
 
 12 agent runs; expect roughly an hour on a laptop CPU. Keep the laptop awake. The table is saved to `bench-results.md` next to the program.
 
-## Results
+## Results (Nov 26, 2026, my laptop: 16 GB RAM, CPU only)
 
-*Not run yet.*
+Photo described once by `gemma3:4b`; each model below only makes the decisions.
+
+| Model | Right (of 3) | Score | Avg time | RAM in Ollama | Push-backs | Skill loaded when needed | Licence |
+|---|---|---|---|---|---|---|---|
+| `qwen3:4b` | 3/3 | 6/6 | 267 s | 12.8 GB | 0 | 3/3 | Apache License |
+| `gemma4:e4b` | 3/3 | 6/6 | **67 s** | **2.6 GB** | 0 | 3/3 | Apache License |
+| `granite4:3b` | 3/3 | 6/6 | **35 s** | 8.0 GB | 0 | 3/3 | Apache License |
+| `llama3.2:3b` | 0/3 | 0/6 | 16 s | 10.1 GB | 0 | 2/3 | LLAMA 3.2 COMMUNITY LICENSE AGREEMENT |
+
+| Model | Task | Result | Suggested | Skills loaded | Tool calls | Time |
+|---|---|---|---|---|---|---|
+| `qwen3:4b` | phone-bill | ✅ right | document(3).pdf → Bills & Receipts | filing-bills | 4 | 282 s |
+| `qwen3:4b` | power-bill | ✅ right | enmax_statement.pdf → Home & Car | filing-bills | 4 | 198 s |
+| `qwen3:4b` | coffee-photo | ✅ right | IMG_2207.jpg → Bills & Receipts | filing-receipts | 5 | 322 s |
+| `gemma4:e4b` | phone-bill | ✅ right | document(3).pdf → Bills & Receipts | filing-bills | 4 | 80 s |
+| `gemma4:e4b` | power-bill | ✅ right | enmax_statement.pdf → Home & Car | filing-bills | 4 | 70 s |
+| `gemma4:e4b` | coffee-photo | ✅ right | IMG_2207.jpg → Bills & Receipts | filing-receipts | 4 | 51 s |
+| `granite4:3b` | phone-bill | ✅ right | document(3).pdf → Bills & Receipts | filing-bills | 4 | 55 s |
+| `granite4:3b` | power-bill | ✅ right | enmax_statement.pdf → Home & Car | filing-bills | 4 | 27 s |
+| `granite4:3b` | coffee-photo | ✅ right | IMG_2207.jpg → Bills & Receipts | filing-receipts | 4 | 23 s |
+| `llama3.2:3b` | phone-bill | ❌ no suggestion | – | filing-bills | 1 | 32 s |
+| `llama3.2:3b` | power-bill | ❌ no suggestion | – | filing-bills | 1 | 7 s |
+| `llama3.2:3b` | coffee-photo | ❌ no suggestion | – | none | 1 | 7 s |
+
+### What I read from it
+
+- **Three models were equally accurate**, so the choice comes down to speed, memory, licence and abilities. Choosing a model is a trade-off, not a contest.
+- **`gemma4:e4b` is the best fit for this agent:** perfect score, 4× faster than `qwen3:4b`, the least RAM, Apache 2.0, and it can **see images too**, so it could do both jobs (read the photo and decide) and replace the two-model setup.
+- **`granite4:3b` is the fastest** (35 s, about 8× faster than `qwen3:4b`) if vision isn't needed. In the photo task it loaded the skill *after* reading the file, but still followed it.
+- **`qwen3:4b` is accurate but slow**: it "thinks" before every step. Once (coffee task) it tried to suggest before reading and the tool refused, as in Step 2c.
+- **`llama3.2:3b` failed every task, quickly.** It barely used the tools, and on the *phone* bill task it said it would move "Prairie Power Co., power bill, statement Sep 20, 2026": that's the **example text from my skill**, not a file. A weak model can **copy a skill's example** instead of doing the work.
+- **A gap in my guardrail:** the "record it, don't just describe it" push-back only fired after the model had read a file, so `llama3.2:3b`, which never read anything, slipped past. Fixed after this run: it now also pushes back when the model answers without reading anything.
+
+### Limits of this test
+- 3 tasks, one run each: a small sample. A model can be lucky or unlucky once.
+- "Thinking" models vary a little from run to run, even at temperature 0.
+- Times and RAM are for **my laptop and my Ollama settings** (RAM depends on the context length and each model's design); with a GPU, results and even the ranking could change.
+- Easy tasks for three of the four models: harder tasks (more files, vaguer requests) would separate them better.
