@@ -14,7 +14,7 @@ In October 2026 I built four local-first apps with open models ([portfolio](http
 | 1.3 | A real task: an assistant for my Sloth Sort app (search, read, suggest; you approve) | [`03-sloth-assistant`](03-sloth-assistant) | ✅ Found the right bill out of 40 files (185 s, laptop CPU) |
 | 2 | **Skills:** reusable instructions for an agent | [`04-skills`](04-skills) | ✅ With a skill, the same model followed my filing rule (Home & Car) and my reason format; without it, it guessed |
 | 2c | **Real bills:** PDFs and Word files read as text, photos described by Gemma 3 vision | [`05-real-bills`](05-real-bills/BillsAgent) | ✅ Gemma read a receipt photo correctly; the agent found and filed it by its content |
-| 3 | **Choosing a model:** 3 small models on the same test: accuracy, speed, licence | | Next |
+| 3 | **Choosing a model:** 4 small models on the same 3 tasks: accuracy, speed, RAM, licence | [`06-choosing-a-model`](06-choosing-a-model) | Benchmark built; running on my laptop |
 | 4 | **Fine-tuning** a 1–3B model on fictional receipts (free Colab GPU), measured against the baseline | | |
 
 Each step's folder has a README with what I tried, what went wrong, and real results.
