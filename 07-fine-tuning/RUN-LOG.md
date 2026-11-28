@@ -58,3 +58,26 @@ What the 270M model actually answered, per receipt:
 It copied the example shape from the prompt, so its "right" fields are only the ones whose correct answer happened to be 0.
 
 The photo transcripts Gemma 4 made (input for `extract`) are in [`ReceiptBench/samples/transcripts.json`](ReceiptBench/samples/transcripts.json).
+
+## Part 4.4: the fine-tuned model (`receipt-reader`), after training on Colab
+
+```
+PS …\AgentLab\07-fine-tuning> ollama create receipt-reader -f Modelfile
+gathering model components
+parsing GGUF
+using existing layer sha256:f284987ff481254efade476a890d699a559c90cc6557cf2e47ac402db9c2a79d
+using autodetected template gemma3-instruct
+using existing layer sha256:d3a76cb8c4a07d0a6c82ac6e839f98816b5077699d393b2cc77008c16d8078ac
+writing manifest
+success
+PS …\AgentLab\07-fine-tuning> cd ReceiptBench
+PS …\AgentLab\07-fine-tuning\ReceiptBench> dotnet run -- extract receipt-reader
+01_fuel.jpg          ✓vendor ✓date ✓subtotal ✓gst ✓other_tax ✓tip ✓total  6 s
+02_coffee.jpg        ✓vendor ✓date ✓subtotal ✓gst ✓other_tax ✓tip ✓total  1 s
+03_office.jpg        ✓vendor ✓date ✓subtotal ✓gst ✓other_tax ✓tip ✓total  1 s
+04_courier.jpg       ✓vendor ✓date ✓subtotal ✓gst ✓other_tax ✓tip ✓total  1 s
+05_bc_print.jpg      ✓vendor ✓date ✓subtotal ✓gst ✓other_tax ✓tip ✓total  1 s
+06_groceries.jpg     ✓vendor ✓date ✓subtotal ✓gst ✓other_tax ✓tip ✓total  1 s
+
+receipt-reader (transcript → fields): vendor 6/6, date 6/6, subtotal 6/6, gst 6/6, other_tax 6/6, tip 6/6, total 6/6 · all fields right on 42/42 · 2 s per receipt
+```

@@ -15,7 +15,7 @@ In October 2026 I built four local-first apps with open models ([portfolio](http
 | 2 | **Skills:** reusable instructions for an agent | [`04-skills`](04-skills) | ✅ With a skill, the same model followed my filing rule (Home & Car) and my reason format; without it, it guessed |
 | 2c | **Real bills:** PDFs and Word files read as text, photos described by Gemma 3 vision | [`05-real-bills`](05-real-bills/BillsAgent) | ✅ Gemma read a receipt photo correctly; the agent found and filed it by its content |
 | 3 | **Choosing a model:** 4 small models on the same 3 tasks: accuracy, speed, RAM, licence | [`06-choosing-a-model`](06-choosing-a-model) | ✅ `gemma4:e4b`: 3/3, 67 s, 2.6 GB, Apache 2.0, and can see. `granite4:3b` 3/3 in 35 s. `llama3.2:3b` 0/3 |
-| 4 | **Fine-tuning:** can a tiny model (Gemma 3 270M, ~0.3 GB) be trained to read receipts as well as Gemma 4 (~3 GB)? | [`07-fine-tuning`](07-fine-tuning) | 4.1 ✅ Gemma 4: 42/42 at 31 s per receipt; 270M before training: 11/42 at 1 s. 4.2 ✅ 2,000 fictional training receipts. 4.3 Colab notebook ready, to run |
+| 4 | **Fine-tuning:** can a tiny model (Gemma 3 270M, ~0.3 GB) be trained to read receipts as well as Gemma 4 (~3 GB)? | [`07-fine-tuning`](07-fine-tuning) | 4.1 ✅ Gemma 4: 42/42 at 31 s per receipt; 270M before training: 11/42 at 1 s. 4.2 ✅ 2,000 fictional training receipts. 4.3 ✅ trained on a free Colab T4. **4.4 ✅ after training: 42/42 at about 1 s per receipt**, matching Gemma 4 (31 s) on the 6 test receipts |
 
 Each step's folder has a README with what I tried, what went wrong, and real results, plus a `RUN-LOG.md` with the raw output of my laptop runs.
 

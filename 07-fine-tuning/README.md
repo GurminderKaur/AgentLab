@@ -78,3 +78,21 @@ The notebook [`colab/fine_tune_receipt_reader.ipynb`](colab/fine_tune_receipt_re
 Runtime: **T4 GPU**. About 15–25 minutes in total.
 
 The [`Modelfile`](Modelfile) turns the downloaded file into an Ollama model with Gemma 3's chat format, `temperature 0`. GGUF files are git-ignored (too big for the repo).
+
+## Part 4.4: the trained model on my laptop
+
+Trained on Colab on Nov 28, 2026 (held-out scores from the notebook: to be added), downloaded as `receipt-reader-Q8_0.gguf`, loaded with `ollama create receipt-reader -f Modelfile`, then the same test as Part 4.1:
+
+| Model | Size | All fields right (of 42) | Time per receipt (transcript → fields) |
+|---|---|---|---|
+| Gemma 3 270M, before training | ~0.3 GB | 11 (only fields whose answer was 0) | 1 s |
+| **Gemma 3 270M, after training (`receipt-reader`)** | **~0.3 GB** | **42** | **~1 s** (6 s for the first, while it loads) |
+| Gemma 4 E4B (no training) | ~3 GB | 42 | 31 s |
+
+**On this job, the fine-tuned 270M model matched Gemma 4, about 30 times faster.** It learned the job from fictional receipts only: none of the 6 test receipts or their businesses were in the training data.
+
+### What this does and doesn't show
+- **Only 6 test receipts**, one run, all from the same fictional sample set. 42/42 here is not proof it's perfect; the 200 held-out receipts in the Colab notebook are the bigger check.
+- **I wrote the training data after seeing these receipts' styles** (date formats, `GST 5%` lines, zero-rated groceries, BC PST). No receipt text was copied, but the training data was shaped to look like this test. A receipt in a style it never saw (a long restaurant bill, another language, a scanned crooked photo) could fail.
+- **It reads text, not photos.** The 270M model only does the second half: turning a receipt's text into fields. Something still has to read the photo first (here, Gemma 4's transcripts). The win is a fast, tiny, specialised second step, not a replacement for the vision model.
+- **It does one thing.** Ask it anything else and it will still try to answer with receipt JSON. That's the trade-off of fine-tuning a tiny model.
