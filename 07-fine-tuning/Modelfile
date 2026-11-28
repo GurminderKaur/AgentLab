@@ -1,0 +1,20 @@
+# Ollama recipe for the fine-tuned receipt reader (Step 4.4).
+# Put receipt-reader-Q8_0.gguf (downloaded from the Colab notebook) in this folder, then run:
+#   ollama create receipt-reader -f Modelfile
+FROM ./receipt-reader-Q8_0.gguf
+
+# Gemma 3's chat format: the same one the model was trained with.
+TEMPLATE """{{- range $i, $_ := .Messages }}
+{{- $last := eq (len (slice $.Messages $i)) 1 }}
+{{- if or (eq .Role "user") (eq .Role "system") }}<start_of_turn>user
+{{ .Content }}<end_of_turn>
+{{ if $last }}<start_of_turn>model
+{{ end }}
+{{- else if eq .Role "assistant" }}<start_of_turn>model
+{{ .Content }}{{ if not $last }}<end_of_turn>
+{{ end }}
+{{- end }}
+{{- end }}"""
+
+PARAMETER stop "<end_of_turn>"
+PARAMETER temperature 0

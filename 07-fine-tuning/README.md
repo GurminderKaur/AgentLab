@@ -61,3 +61,20 @@ Checks the script makes before saving:
 - every example starts with exactly the text of `prompt.txt`, the same way ReceiptBench builds its message.
 
 The 200 held-out examples are never trained on: they show whether the model learned the rules or memorised the examples.
+## Part 4.3: training on a free Colab GPU
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/GurminderKaur/AgentLab/blob/main/07-fine-tuning/colab/fine_tune_receipt_reader.ipynb)
+
+The notebook [`colab/fine_tune_receipt_reader.ipynb`](colab/fine_tune_receipt_reader.ipynb) follows Unsloth's official Gemma 3 270M example:
+
+1. installs Unsloth;
+2. downloads `train.jsonl` and `heldout.jsonl` from this repo (fictional data only, nothing from my laptop);
+3. loads `unsloth/gemma-3-270m-it` and adds a LoRA adapter (r = 128): the original model stays frozen;
+4. scores 50 held-out receipts **before** training;
+5. trains for 2 passes over the 2,000 receipts, scoring only the answers (`train_on_responses_only`);
+6. scores all 200 held-out receipts **after** training;
+7. exports one `receipt-reader-Q8_0.gguf` (~0.3 GB) and downloads it.
+
+Runtime: **T4 GPU**. About 15–25 minutes in total.
+
+The [`Modelfile`](Modelfile) turns the downloaded file into an Ollama model with Gemma 3's chat format, `temperature 0`. GGUF files are git-ignored (too big for the repo).
