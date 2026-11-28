@@ -6,7 +6,7 @@ Trained only on 2,000 **fictional** receipts made by [`make_training_data.py`](h
 
 | | |
 |---|---|
-| File | `receipt-reader-Q8_0.gguf` · 291.5 MB · Q8_0 |
+| File | [`receipt-reader-Q8_0.gguf`](https://github.com/GurminderKaur/AgentLab/releases/tag/receipt-reader-v1) · 291.5 MB · Q8_0 |
 | SHA-256 | `f284987ff481254efade476a890d699a559c90cc6557cf2e47ac402db9c2a79d` |
 | Base model | `unsloth/gemma-3-270m-it` (Google Gemma 3 270M, 268M parameters) |
 | Result | 42/42 fields on 6 fictional test receipts, ~1 s each on a laptop CPU (before training: 11/42). Details and limits in [`07-fine-tuning/README.md`](https://github.com/GurminderKaur/AgentLab/blob/main/07-fine-tuning/README.md) |

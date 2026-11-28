@@ -96,6 +96,8 @@ The [`Modelfile`](Modelfile) turns the downloaded file into an Ollama model with
 
 ## Part 4.4: the trained model on my laptop
 
+**Download:** [`receipt-reader-Q8_0.gguf`](https://github.com/GurminderKaur/AgentLab/releases/tag/receipt-reader-v1) (292 MB, Gemma Terms of Use; see the [model card](MODEL-CARD.md)).
+
 Trained on Colab on Nov 28, 2026 ([the run, with all its outputs](colab/run-2026-11-28.ipynb)), downloaded as `receipt-reader-Q8_0.gguf`, loaded with `ollama create receipt-reader -f Modelfile`, then the same test as Part 4.1:
 
 | Model | Size | All fields right (of 42) | Time per receipt (transcript → fields) |
