@@ -77,11 +77,26 @@ The notebook [`colab/fine_tune_receipt_reader.ipynb`](colab/fine_tune_receipt_re
 
 Runtime: **T4 GPU**. About 15–25 minutes in total.
 
+### What happened in my run (Nov 28, 2026, free Colab T4)
+
+The full notebook with every output is saved as [`colab/run-2026-11-28.ipynb`](colab/run-2026-11-28.ipynb).
+
+| | Held-out receipts | All fields right |
+|---|---|---|
+| Before training | 50 | **96/350** (27%): it answered `"..."`, `"YYYY-MM-DD"` and zeros, the same template-copying as on my laptop |
+| **After training** | **200** | **1400/1400** (100%) |
+
+- **Trained:** 30.4 M of 298 M numbers (10%, the LoRA adapter), 680 steps, **10.5 minutes**. Unsloth packed the 2,000 receipts into 340 rows ("packing", on by default).
+- **Loss:** 0.084 at step 25, 0.004 at step 50, and **0.000 from step 150 on**. It learned the job in the first quarter of training; the rest added nothing visible. One epoch would very likely have been enough.
+- **Export:** merged into the base model and converted to one 292 MB GGUF (Q8_0).
+
+**Why 100% isn't as impressive as it looks:** the 200 held-out receipts come from the **same generator** as the training data: same layouts, same kinds of businesses, same tax rules. A perfect score shows it learned *my generator's* rules, not that it can read any receipt. The six test receipts on my laptop (Part 4.4) are a slightly harder check, because they were made separately; a real-world check would need receipts in styles the generator never produced.
+
 The [`Modelfile`](Modelfile) turns the downloaded file into an Ollama model with Gemma 3's chat format, `temperature 0`. GGUF files are git-ignored (too big for the repo).
 
 ## Part 4.4: the trained model on my laptop
 
-Trained on Colab on Nov 28, 2026 (held-out scores from the notebook: to be added), downloaded as `receipt-reader-Q8_0.gguf`, loaded with `ollama create receipt-reader -f Modelfile`, then the same test as Part 4.1:
+Trained on Colab on Nov 28, 2026 ([the run, with all its outputs](colab/run-2026-11-28.ipynb)), downloaded as `receipt-reader-Q8_0.gguf`, loaded with `ollama create receipt-reader -f Modelfile`, then the same test as Part 4.1:
 
 | Model | Size | All fields right (of 42) | Time per receipt (transcript → fields) |
 |---|---|---|---|
