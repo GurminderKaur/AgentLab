@@ -26,6 +26,7 @@ jobs:
           dotnet run --project 03-sloth-assistant -c Release --no-build -- selftest || fail=1
           dotnet run --project 04-skills/SkillAgent -c Release --no-build -- selftest || fail=1
           dotnet run --project 05-real-bills/BillsAgent -c Release --no-build -- selftest || fail=1
+          dotnet run --project 07-fine-tuning/ReceiptBench -c Release --no-build -- selftest || fail=1
           exit $fail
       - name: Every SKILL.md header is valid YAML (strict, like OpenCode and GitHub)
         run: |
