@@ -74,14 +74,14 @@ Unsloth: QLoRA and full finetuning all not selected. Switching to 16bit LoRA.
 
 Before training (50 held-out receipts):
 
-```
+~~~~
 model said: ```json
 {"vendor": "...", "date": "YYYY-MM-DD", "subtotal": 0.00, "gst": 0.00, "other_tax": 0.00, "tip": 0.00, "total": 0.00}
 ```
 right was: {"vendor": "SIGNAL PRINT & COPY", "date": "2026-10-08", "subtotal": 392.12, "gst": 19.61, "other_tax": 23.53, "tip": 0.0, "total": 435.26}
 
 vendor 3/50, date 2/50, subtotal 0/50, gst 8/50, other_tax 35/50, tip 48/50, total 0/50 · all fields right on 96/350
-```
+~~~~
 
 Training:
 
