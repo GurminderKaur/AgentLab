@@ -1,6 +1,6 @@
 // Bills Agent (Steps 2c and 3): the skills agent from Step 2b, for REAL file types.
 // PDFs and Word files are read as text; photos are looked at ONCE by a vision model (Gemma 3), and that description
-// is what search and read_file use. One model looks (gemma3:4b), another decides (qwen3:4b by default).
+// is what search and read_file use. Since Step 3, gemma4:e4b does both: it reads photos and makes the decisions.
 //   dotnet run -- selftest
 //   dotnet run -- qwen3:4b "File my coffee receipt from October."
 //   dotnet run -- bench qwen3:4b gemma4:e4b granite4:3b llama3.2:3b      (Step 3: compare models)
@@ -19,7 +19,7 @@ var photo = File.ReadAllBytes(Path.Combine(baseDir, "samples", "coffee-receipt-p
 if (args.Length > 0 && args[0] == "selftest") return Library.SelfTest(photo) + Bench.SelfTest() + SlothAssistant.Downloads.SelfTest();
 
 string Opt(string name, string fallback) { int i = Array.IndexOf(args, name); return i >= 0 && i + 1 < args.Length ? args[i + 1] : fallback; }
-var visionModel = Opt("--vision", "gemma3:4b");
+var visionModel = Opt("--vision", "gemma4:e4b");   // Step 3: gemma4 reads photos and decides; one model instead of two
 var rest = args.Where((a, i) => a != "--vision" && (i == 0 || args[i - 1] != "--vision")).ToArray();
 var root = Path.Combine(baseDir, "practice-downloads");
 var library = new Library(Path.Combine(baseDir, "photo-notes.json")); // what the vision model saw, kept between runs
@@ -157,7 +157,7 @@ async Task<double> RamGbOf(string model)
 // ── Step 3: the benchmark ───────────────────────────────────────────────────
 if (rest.Length > 0 && rest[0] == "bench")
 {
-    var models = rest.Skip(1).DefaultIfEmpty("qwen3:4b").ToList();
+    var models = rest.Skip(1).DefaultIfEmpty("gemma4:e4b").ToList();
     Console.WriteLine($"Benchmark: {models.Count} model(s) × {Bench.Tasks.Length} tasks, same files for every run. Leave the laptop awake (it takes a while).");
     if (!await LookAtPhotos()) return 1;   // one photo description (by the vision model) shared by every model, so only the decision-maker differs
     var runs = new List<RunResult>();
@@ -184,7 +184,7 @@ if (rest.Length > 0 && rest[0] == "bench")
 }
 
 // ── A single task (Step 2c) ─────────────────────────────────────────────────
-var model = rest.Length > 0 ? rest[0] : "qwen3:4b";
+var model = rest.Length > 0 ? rest[0] : "gemma4:e4b";   // chosen in Step 3 (06-choosing-a-model)
 var request = rest.Length > 1 ? rest[1] : "File my coffee receipt from October.";
 Console.WriteLine($"Practice Downloads (PDF, Word, photo, text) · skills: {string.Join(", ", skills.Select(s => s.Name))}");
 if (!await LookAtPhotos()) return 1;

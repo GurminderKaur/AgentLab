@@ -77,6 +77,31 @@ Photo described once by `gemma3:4b`; each model below only makes the decisions.
 - **`llama3.2:3b` failed every task, quickly.** It barely used the tools, and on the *phone* bill task it said it would move "Prairie Power Co., power bill, statement Sep 20, 2026": that's the **example text from my skill**, not a file. A weak model can **copy a skill's example** instead of doing the work.
 - **A gap in my guardrail:** the "record it, don't just describe it" push-back only fired after the model had read a file, so `llama3.2:3b`, which never read anything, slipped past. Fixed after this run: it now also pushes back when the model answers without reading anything.
 
+### Follow-up: one model for both jobs
+
+Gemma 4 can see images *and* use tools, so I tried it as the photo reader too (`--vision gemma4:e4b`):
+
+```
+  🖼  looking at IMG_2207.jpg… 51 s
+     Chinook Coffee House
+     Receipt
+     Oct 6, 2026
+     Total: $16.96
+  📚 load_skill("filing-receipts")
+  🔎 search_files("coffee receipt October")
+  📄 read_file("IMG_2207.jpg")
+  📦 suggest_move("IMG_2207.jpg" → "Bills & Receipts")
+Suggested: IMG_2207.jpg → Bills & Receipts   (Chinook Coffee House, receipt, Oct 6, 2026, $16.96)
+agent took 58 s
+```
+
+| Setup | Photo look | Agent | Total | Models |
+|---|---|---|---|---|
+| `gemma3:4b` looks + `qwen3:4b` decides (Step 2c) | 38 s | 299 s | ~5½ min | 2 |
+| **`gemma4:e4b` does both** | 51 s | 58 s | **~2 min** | **1** |
+
+It read the photo correctly and made the right decision, about 3× faster with one model instead of two. **Decision: the Bills Agent now uses `gemma4:e4b` by default for both jobs** (any other model can still be passed on the command line).
+
 ### Limits of this test
 - 3 tasks, one run each: a small sample. A model can be lucky or unlucky once.
 - "Thinking" models vary a little from run to run, even at temperature 0.
