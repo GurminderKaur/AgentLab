@@ -17,6 +17,6 @@ In October 2026 I built four local-first apps with open models ([portfolio](http
 | 3 | **Choosing a model:** 4 small models on the same 3 tasks: accuracy, speed, RAM, licence | [`06-choosing-a-model`](06-choosing-a-model) | ✅ `gemma4:e4b`: 3/3, 67 s, 2.6 GB, Apache 2.0, and can see. `granite4:3b` 3/3 in 35 s. `llama3.2:3b` 0/3 |
 | 4 | **Fine-tuning:** can a tiny model (Gemma 3 270M, ~0.3 GB) be trained to read receipts as well as Gemma 4 (~3 GB)? | [`07-fine-tuning`](07-fine-tuning) | 4.1 ✅ Gemma 4: 42/42 at 31 s per receipt; 270M before training: 11/42 at 1 s. 4.2 ✅ 2,000 fictional training receipts. 4.3 Colab notebook ready, to run |
 
-Each step's folder has a README with what I tried, what went wrong, and real results.
+Each step's folder has a README with what I tried, what went wrong, and real results, plus a `RUN-LOG.md` with the raw output of my laptop runs.
 
 All sample data is fictional. Code is MIT licensed; each model has its own licence (noted per step).
